@@ -8,12 +8,12 @@ import { creatorPlatforms, emptyWorkspace, type CreatorPlatform, type Lead } fro
 
 function CustomerCenter() {
   const [level, setLevel] = useState('全部')
-  const [platformFilter, setPlatformFilter] = useState<'全部' | Exclude<CreatorPlatform, '其他'>>('全部')
+  const [platformFilter, setPlatformFilter] = useState<'全部' | CreatorPlatform>('全部')
   const [context, setContext] = useState('')
   const [form, setForm] = useState({
     name: '',
     source: '',
-    platform: '抖音' as Exclude<CreatorPlatform, '其他'>,
+    platform: '抖音' as CreatorPlatform,
     level: 'A' as Lead['level'],
     status: '待跟进',
     need: '',
@@ -145,10 +145,10 @@ ${visibleLeads.map((lead) => `- ${lead.name} / ${lead.source} / ${lead.platform}
             />
             <select
               value={form.platform}
-              onChange={(e) => setForm({ ...form, platform: e.target.value as Exclude<CreatorPlatform, '其他'> })}
+              onChange={(e) => setForm({ ...form, platform: e.target.value as CreatorPlatform })}
               className="h-11 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
             >
-              {creatorPlatforms.filter((item): item is Exclude<CreatorPlatform, '其他'> => item !== '其他').map((item) => (
+              {creatorPlatforms.map((item) => (
                 <option key={item} value={item}>
                   {item}
                 </option>
@@ -204,7 +204,7 @@ ${visibleLeads.map((lead) => `- ${lead.name} / ${lead.source} / ${lead.platform}
             >
               全部平台
             </button>
-            {(['抖音', '小红书', '视频号', 'B站', '公众号'] as Exclude<CreatorPlatform, '其他'>[]).map((item) => (
+            {creatorPlatforms.map((item) => (
               <button
                 key={item}
                 type="button"

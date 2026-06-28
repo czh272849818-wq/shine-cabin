@@ -82,7 +82,7 @@ export async function chatCompletionStream(
     const json = (await res.json().catch(() => null)) as any
     const content = json?.choices?.[0]?.message?.content
     if (typeof content === 'string') {
-      options.onDelta?.(content)
+      await emitProgressiveText(content, options.onDelta)
       return content
     }
     return ''
@@ -119,6 +119,49 @@ export async function chatCompletionStream(
   }
 
   return fullText
+}
+
+async function emitProgressiveText(text: string, onDelta?: (text: string) => void) {
+  if (!onDelta) return
+  const chunks = splitProgressiveChunks(text)
+  if (chunks.length === 0) return
+
+  let fullText = ''
+  for (const chunk of chunks) {
+    fullText += chunk
+    onDelta(fullText)
+    await sleep(computeChunkDelay(chunk, text.length, chunks.length))
+  }
+}
+
+function splitProgressiveChunks(text: string) {
+  if (!text) return []
+
+  const paragraphChunks = text.split(/(\n{2,})/).filter(Boolean)
+  if (paragraphChunks.length > 1) return paragraphChunks
+
+  const sentenceChunks = text.match(/[^。！？!?；;\n]+[。！？!?；;]?|\n+/g)
+  if (sentenceChunks && sentenceChunks.length > 1) return sentenceChunks
+
+  const size = Math.max(32, Math.ceil(text.length / 18))
+  const chunks: string[] = []
+  for (let index = 0; index < text.length; index += size) {
+    chunks.push(text.slice(index, index + size))
+  }
+  return chunks
+}
+
+function computeChunkDelay(chunk: string, totalLength: number, chunkCount: number) {
+  const isWhitespaceOnly = chunk.trim().length === 0
+  if (isWhitespaceOnly) return 0
+
+  const base = totalLength > 1600 ? 36 : totalLength > 800 ? 28 : 20
+  const chunkPenalty = chunkCount > 20 ? 8 : chunkCount > 12 ? 4 : 0
+  return Math.min(60, base + chunkPenalty)
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 function handleSseEvent(eventBlock: string, onChunk: (chunk: string) => void) {

@@ -22,12 +22,10 @@ function Dashboard() {
   const { workspace, loading: workspaceLoading, error: workspaceError } = useWorkspace()
   const leads = workspace?.leads ?? []
   const data = workspace?.metrics
-  const contentByPlatform = creatorPlatforms
-    .filter((platform) => platform !== '其他')
-    .map((platform) => ({
-      platform,
-      count: (workspace?.contents ?? []).filter((item) => item.platform === platform).length,
-    }))
+  const contentByPlatform = creatorPlatforms.map((platform) => ({
+    platform,
+    count: (workspace?.contents ?? []).filter((item) => item.platform === platform).length,
+  }))
   const conversionRate = leads.length > 0 && data ? (data.deals / leads.length) * 100 : 0
   const metrics = [
     { label: '本月线索', value: `${leads.length}` },
@@ -136,7 +134,7 @@ function Dashboard() {
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
           {contentByPlatform.map((item) => (
             <div key={item.platform} className="rounded-lg bg-gray-50 p-4">
               <p className="text-xs font-semibold text-gray-500">{item.platform}</p>

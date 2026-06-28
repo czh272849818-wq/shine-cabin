@@ -25,12 +25,10 @@ function DataInsights() {
   const currentWorkspace = workspace ?? emptyWorkspace()
   const metrics = currentWorkspace.metrics
   const topContent = currentWorkspace.contents
-  const platformCounts = creatorPlatforms
-    .filter((item): item is Exclude<CreatorPlatform, '其他'> => item !== '其他')
-    .map((platform) => ({
-      platform,
-      count: topContent.filter((item) => item.platform === platform).length,
-    }))
+  const platformCounts = creatorPlatforms.map((platform) => ({
+    platform,
+    count: topContent.filter((item) => item.platform === platform).length,
+  }))
   const metricCards = [
     { label: '播放', value: formatNumber(metrics.plays), change: '用户录入', up: metrics.plays > 0 },
     { label: '粉丝', value: formatNumber(metrics.followers), change: '用户录入', up: metrics.followers > 0 },
@@ -153,7 +151,7 @@ ${topContent.map((item) => `- ${item.platform} / ${item.title} / ${item.signal} 
             <BarChart3 className="h-4 w-4 text-primary" />
             内容信号
           </div>
-          <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+          <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">
             {platformCounts.map((item) => (
               <div key={item.platform} className="rounded-lg bg-gray-50 p-3">
                 <p className="text-xs font-semibold text-gray-500">{item.platform}</p>
