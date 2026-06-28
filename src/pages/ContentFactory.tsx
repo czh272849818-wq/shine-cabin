@@ -32,7 +32,7 @@ function ContentFactory() {
     setResult('')
     try {
       await chatCompletionStream([
-        { role: 'system', content: '你是势能舱内容总监。输出必须能直接复制执行，避免空话。' },
+        { role: 'system', content: '你是自媒体发布教练。输出必须能直接复制执行，避免空话。' },
         {
           role: 'user',
           content: `
@@ -65,7 +65,7 @@ function ContentFactory() {
     <div className="space-y-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-primary">内容工厂</p>
+          <p className="text-sm font-semibold text-primary">发布台</p>
           <h1 className="mt-2 text-3xl font-bold text-gray-950">把一个问题变成一条可发布内容</h1>
         </div>
         <button
@@ -75,7 +75,7 @@ function ContentFactory() {
           className={clsx('flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold', loading ? 'bg-gray-200 text-gray-500' : 'bg-primary text-white')}
         >
           <Sparkles className="h-4 w-4" />
-          {loading ? '生成中' : '生成内容'}
+          {loading ? '生成中' : '生成脚本'}
         </button>
       </header>
 

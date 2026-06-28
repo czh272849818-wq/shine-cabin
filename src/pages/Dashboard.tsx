@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { ArrowRight, BarChart3, MessageSquare, Send, Sparkles, Target, Users } from 'lucide-react'
+import { ArrowRight, Compass, DollarSign, PenTool, Repeat, Send } from 'lucide-react'
 import clsx from 'clsx'
 import { chatCompletionStream } from '@/services/llm'
 import { useWorkspace } from '@/hooks/useWorkspace'
 
 const modules = [
-  { title: '行业分析', desc: '找到市场切口', icon: BarChart3 },
-  { title: 'IP定位', desc: '让用户记住你', icon: Target },
-  { title: '内容工厂', desc: '生成可发布内容', icon: Sparkles },
-  { title: '客户中心', desc: '推进线索成交', icon: Users },
+  { title: '选题池', desc: '找内容方向', icon: Compass },
+  { title: '脚本室', desc: '写镜头和口播', icon: PenTool },
+  { title: '复盘台', desc: '看数据找问题', icon: Repeat },
+  { title: '变现台', desc: '接住线索成交', icon: DollarSign },
 ]
 
 function Dashboard() {
@@ -42,7 +42,7 @@ function Dashboard() {
         [
           {
             role: 'system',
-            content: '你是势能舱AI增长总监。用第一性原理判断增长约束，只给今天能执行的高杠杆动作。',
+            content: '你是自媒体工作台教练。用第一性原理判断今天最该做什么，只给能执行的动作。',
           },
           {
             role: 'user',
@@ -87,10 +87,10 @@ function Dashboard() {
           <div>
             <p className="text-sm font-semibold text-primary">势能舱</p>
             <h1 className="mt-2 max-w-3xl text-4xl font-bold leading-tight text-gray-950">
-              用AI把定位、内容、线索和复盘压缩成一个增长系统。
+              用AI把选题、脚本、发布、复盘和变现压缩成一个工作流。
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-600">
-              目标不是多发内容，而是持续制造信任、捕获需求、推进成交，并把有效动作沉淀为模板。
+              目标不是多发内容，而是持续产出可拍、可发、可复盘、可变现的内容动作。
             </p>
           </div>
           <button
@@ -132,7 +132,7 @@ function Dashboard() {
         </div>
 
         <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <h2 className="text-xl font-bold text-gray-950">当前优先级</h2>
+          <h2 className="text-xl font-bold text-gray-950">今日优先级</h2>
           <div className="mt-4 space-y-3">
             {priorities.map((item, index) => (
               <div key={item} className="flex gap-3 rounded-lg bg-gray-50 p-4">
@@ -145,7 +145,7 @@ function Dashboard() {
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="text-xl font-bold text-gray-950">工作流</h2>
+          <h2 className="text-xl font-bold text-gray-950">内容工作流</h2>
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
           {modules.map((item) => (
             <div key={item.title} className="rounded-lg border border-gray-100 p-4">
@@ -160,13 +160,13 @@ function Dashboard() {
       <section className="rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-950">云端部署准备</h2>
-            <p className="mt-1 text-sm text-gray-500">前端调用站内API，DeepSeek Key 只放在 Netlify 环境变量。</p>
+            <h2 className="text-xl font-bold text-gray-950">产品说明</h2>
+            <p className="mt-1 text-sm text-gray-500">面向自媒体工作者的云端工作台，数据与 AI 都走 Netlify。</p>
           </div>
           <ArrowRight className="h-5 w-5 text-gray-400" />
         </div>
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-          {['GitHub远程仓库', 'Netlify环境变量', 'Netlify构建发布'].map((item) => (
+          {['邮箱注册登录', '选题到变现闭环', '云端工作区数据'].map((item) => (
             <div key={item} className="rounded-lg bg-gray-50 p-4 text-sm font-semibold text-gray-700">
               {item}
             </div>
@@ -174,9 +174,6 @@ function Dashboard() {
         </div>
       </section>
 
-      <div className="hidden">
-        <MessageSquare />
-      </div>
     </div>
   )
 }

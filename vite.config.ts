@@ -5,7 +5,7 @@ import * as crypto from 'crypto'
 
 type UserRecord = {
   id: string
-  method: 'phone' | 'email'
+  method: 'email'
   displayName: string
   passwordSalt: string
   passwordHash: string
@@ -15,7 +15,7 @@ type SessionRecord = {
   token: string
   userId: string
   displayName: string
-  method: 'phone' | 'email'
+  method: 'email'
   expiresAt: string
 }
 
@@ -275,16 +275,12 @@ function llmProxyPlugin(apiKey: string | undefined): Plugin {
             const identifier = normalize(body.identifier)
             const password = typeof body.password === 'string' ? body.password : ''
             const name = normalize(body.name)
-            if (method === 'wechat') {
-              sendJson(res, 501, { error: '微信登录需要先配置 WECHAT_APP_ID、WECHAT_APP_SECRET 和微信回调服务。' })
-              return
-            }
-            if (method !== 'phone' && method !== 'email') {
-              sendJson(res, 400, { error: 'Unsupported auth method' })
+            if (method !== 'email') {
+              sendJson(res, 400, { error: '仅支持邮箱登录' })
               return
             }
             if (!identifier) {
-              sendJson(res, 400, { error: method === 'phone' ? '请输入手机号' : '请输入邮箱' })
+              sendJson(res, 400, { error: '请输入邮箱' })
               return
             }
             if (password.length < 6) {
@@ -387,8 +383,7 @@ function hashPassword(password: string, salt: string) {
   return crypto.pbkdf2Sync(password, salt, 120000, 32, 'sha256').toString('hex')
 }
 
-function maskIdentifier(identifier: string, method: 'phone' | 'email') {
-  if (method === 'phone') return `${identifier.slice(0, 3)}****${identifier.slice(-4)}`
+function maskIdentifier(identifier: string, method: 'email') {
   const [name, domain] = identifier.split('@')
   return domain ? `${name.slice(0, 2)}***@${domain}` : identifier
 }

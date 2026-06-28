@@ -1,5 +1,5 @@
 export type AuthMode = 'login' | 'register'
-export type AuthMethod = 'phone' | 'email' | 'wechat'
+export type AuthMethod = 'email'
 
 export type UserSession = {
   token: string

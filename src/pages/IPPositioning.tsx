@@ -1,17 +1,16 @@
 import { useState } from 'react'
 import { ArrowRight, BadgeCheck, Sparkles, Target } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletionStream } from '@/services/llm'
+import { streamCreatorAdvice } from '@/services/creator'
 
 const dimensions = [
-  { label: '角色', value: '老板 / 专家 / 销售 / 运营' },
-  { label: '反差', value: '专业但说人话' },
-  { label: '证据', value: '案例、过程、数据、客户反馈' },
+  { label: '账号角色', value: '内容创作者 / 实拍博主 / 讲解型账号 / 带货型账号' },
+  { label: '核心优势', value: '真实经历、专业知识、审美、表达' },
+  { label: '可信证据', value: '现场、过程、数据、对比、结果' },
 ]
 
 function IPPositioning() {
-  const [industry, setIndustry] = useState('建筑工程')
-  const [keywords, setKeywords] = useState('')
+  const [brief, setBrief] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState('')
@@ -22,29 +21,19 @@ function IPPositioning() {
     setError('')
     setResult('')
     try {
-      await chatCompletionStream(
-        [
-          { role: 'system', content: '你是势能舱的IP定位专家。定位必须能被用户记住、能生产内容、能带来成交。' },
-          {
-            role: 'user',
-            content: `
-行业：${industry}
-关键词：${keywords.trim() || '本地服务、真实案例、专业可信、老板IP'}
+      await streamCreatorAdvice(
+        'script',
+        `
+账号说明：${brief.trim() || '自媒体工作者'}
 
 请输出：
-1. IP定位一句话，30字以内
-2. 产品/个人命名候选10个
-3. 三句自我介绍：抖音、小红书、视频号
-4. 人设支柱：专业、真实、利他各3条证据
-5. 选题方向：人设、科普、案例、转化各5条
-6. 不能做的事：6条避坑清单
+1. 一句话账号定位
+2. 三个稳定人设方向
+3. 三句自我介绍
+4. 适合长期拍的内容支柱
+5. 不要做的内容
 `.trim(),
-          },
-        ],
-        {
-          temperature: 0.65,
-          onDelta: setResult,
-        }
+        setResult
       )
     } catch (e) {
       setError(e instanceof Error ? e.message : '生成失败')
@@ -57,8 +46,8 @@ function IPPositioning() {
     <div className="space-y-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-primary">IP定位</p>
-          <h1 className="mt-2 text-3xl font-bold text-gray-950">让用户一句话记住你</h1>
+          <p className="text-sm font-semibold text-primary">脚本定位</p>
+          <h1 className="mt-2 text-3xl font-bold text-gray-950">先把自己说清楚，再开始稳定输出</h1>
         </div>
         <button
           type="button"
@@ -73,17 +62,11 @@ function IPPositioning() {
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr]">
         <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <label className="text-sm font-semibold text-gray-950">行业</label>
-          <input
-            value={industry}
-            onChange={(e) => setIndustry(e.target.value)}
-            className="mt-3 h-11 w-full rounded-lg border border-gray-200 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-          />
-          <label className="mt-5 block text-sm font-semibold text-gray-950">关键词</label>
+          <label className="text-sm font-semibold text-gray-950">账号说明</label>
           <textarea
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)}
-            placeholder="输入你的资源、经历、客户、产品、性格、差异点。"
+            value={brief}
+            onChange={(e) => setBrief(e.target.value)}
+            placeholder="输入你是谁、拍什么、给谁看、怎么变现。"
             className="mt-3 h-36 w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>

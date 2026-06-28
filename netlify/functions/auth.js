@@ -21,17 +21,10 @@ exports.handler = async (event) => {
   const password = typeof body.password === 'string' ? body.password : ''
   const name = normalize(body.name)
 
-  if (method === 'wechat') {
-    if (!process.env.WECHAT_APP_ID || !process.env.WECHAT_APP_SECRET) {
-      return json(501, { error: '微信登录需要先配置 WECHAT_APP_ID、WECHAT_APP_SECRET 和微信回调服务。' })
-    }
-    return json(501, { error: '微信 OAuth 回调尚未启用。' })
+  if (method !== 'email') {
+    return json(400, { error: '仅支持邮箱登录' })
   }
-
-  if (method !== 'email' && method !== 'phone') {
-    return json(400, { error: 'Unsupported auth method' })
-  }
-  if (!identifier) return json(400, { error: method === 'phone' ? '请输入手机号' : '请输入邮箱' })
+  if (!identifier) return json(400, { error: '请输入邮箱' })
   if (password.length < 6) return json(400, { error: '密码至少 6 位' })
 
   const userKey = `users/${method}-${sha(identifier)}`
@@ -99,7 +92,6 @@ function hashPassword(password, salt) {
 }
 
 function maskIdentifier(identifier, method) {
-  if (method === 'phone') return `${identifier.slice(0, 3)}****${identifier.slice(-4)}`
   const [name, domain] = identifier.split('@')
   if (!domain) return identifier
   return `${name.slice(0, 2)}***@${domain}`

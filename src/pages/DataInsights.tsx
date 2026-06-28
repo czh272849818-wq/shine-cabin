@@ -107,7 +107,7 @@ ${topContent.map((item) => `- ${item.title} / ${item.signal} / 完播${item.comp
     <div className="space-y-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-primary">数据洞察</p>
+          <p className="text-sm font-semibold text-primary">复盘台</p>
           <h1 className="mt-2 text-3xl font-bold text-gray-950">只看能改变动作的数据</h1>
         </div>
         <button
@@ -117,7 +117,7 @@ ${topContent.map((item) => `- ${item.title} / ${item.signal} / 完播${item.comp
           className={clsx('flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold', loading ? 'bg-gray-200 text-gray-500' : 'bg-primary text-white')}
         >
           <Sparkles className="h-4 w-4" />
-          {loading ? '诊断中' : '生成诊断'}
+          {loading ? '诊断中' : '生成复盘'}
         </button>
       </header>
 

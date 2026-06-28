@@ -82,8 +82,8 @@ ${visibleLeads.map((lead) => `- ${lead.name} / ${lead.source} / ${lead.level}级
     <div className="space-y-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-primary">客户中心</p>
-          <h1 className="mt-2 text-3xl font-bold text-gray-950">把咨询变成可推进的事实</h1>
+          <p className="text-sm font-semibold text-primary">变现台</p>
+          <h1 className="mt-2 text-3xl font-bold text-gray-950">把咨询变成可推进的成交动作</h1>
         </div>
         <button
           type="button"
@@ -92,7 +92,7 @@ ${visibleLeads.map((lead) => `- ${lead.name} / ${lead.source} / ${lead.level}级
           className={clsx('flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold', loading ? 'bg-gray-200 text-gray-500' : 'bg-primary text-white')}
         >
           <Sparkles className="h-4 w-4" />
-          {loading ? '生成中' : '生成跟进'}
+          {loading ? '生成中' : '生成成交动作'}
         </button>
       </header>
 
