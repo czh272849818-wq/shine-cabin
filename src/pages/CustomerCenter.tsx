@@ -8,6 +8,7 @@ import { creatorPlatforms, emptyWorkspace, type CreatorPlatform, type Lead } fro
 
 function CustomerCenter() {
   const [level, setLevel] = useState('全部')
+  const [platformFilter, setPlatformFilter] = useState<'全部' | Exclude<CreatorPlatform, '其他'>>('全部')
   const [context, setContext] = useState('')
   const [form, setForm] = useState({
     name: '',
@@ -24,7 +25,11 @@ function CustomerCenter() {
   const currentWorkspace = workspace ?? emptyWorkspace()
   const leads = currentWorkspace.leads
 
-  const visibleLeads = useMemo(() => leads.filter((lead) => level === '全部' || lead.level === level), [leads, level])
+  const visibleLeads = useMemo(
+    () =>
+      leads.filter((lead) => (level === '全部' || lead.level === level) && (platformFilter === '全部' || lead.platform === platformFilter)),
+    [leads, level, platformFilter]
+  )
   const conversionRate = leads.length > 0 ? ((currentWorkspace.metrics.deals / leads.length) * 100).toFixed(1) : '0.0'
 
   const addLead = async (e: React.FormEvent) => {
@@ -179,7 +184,7 @@ ${visibleLeads.map((lead) => `- ${lead.name} / ${lead.source} / ${lead.platform}
             </button>
           </form>
 
-          <div className="mb-4 flex gap-2">
+          <div className="mb-4 flex flex-wrap gap-2">
             {['全部', 'A', 'B', 'C'].map((item) => (
               <button
                 key={item}
@@ -191,12 +196,31 @@ ${visibleLeads.map((lead) => `- ${lead.name} / ${lead.source} / ${lead.platform}
               </button>
             ))}
           </div>
+          <div className="mb-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setPlatformFilter('全部')}
+              className={clsx('rounded-lg border px-4 py-2 text-sm font-semibold', platformFilter === '全部' ? 'border-primary bg-primary text-white' : 'border-gray-200 text-gray-700')}
+            >
+              全部平台
+            </button>
+            {(['抖音', '小红书', '视频号', 'B站', '公众号'] as Exclude<CreatorPlatform, '其他'>[]).map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setPlatformFilter(item)}
+                className={clsx('rounded-lg border px-4 py-2 text-sm font-semibold', platformFilter === item ? 'border-primary bg-primary text-white' : 'border-gray-200 text-gray-700')}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
           <div className="divide-y divide-gray-100">
             {visibleLeads.length === 0 ? (
               <div className="rounded-lg bg-gray-50 p-5 text-sm text-gray-500">暂无线索。先添加真实客户，再让 AI 生成跟进策略。</div>
             ) : null}
             {visibleLeads.map((lead) => (
-              <div key={`${lead.name}-${lead.source}`} className="py-4">
+              <div key={lead.id} className="py-4">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-gray-950">{lead.name}</p>
                   <div className="flex items-center gap-2">

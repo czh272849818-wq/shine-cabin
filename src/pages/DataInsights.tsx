@@ -206,7 +206,7 @@ ${topContent.map((item) => `- ${item.platform} / ${item.title} / ${item.signal} 
               <div className="rounded-lg bg-gray-50 p-5 text-sm text-gray-500">暂无内容数据。录入真实内容表现后，再做诊断。</div>
             ) : null}
             {topContent.map((item) => (
-              <div key={item.title} className="py-4">
+              <div key={item.id} className="py-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="font-semibold text-gray-950">{item.title}</p>

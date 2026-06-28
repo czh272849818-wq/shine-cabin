@@ -44,7 +44,7 @@ function ContentFactory() {
     try {
       const platformList = selectedPlatforms.length > 0 ? selectedPlatforms.join('、') : '抖音、小红书、视频号、B站、公众号'
       await chatCompletionStream([
-        { role: 'system', content: '你是全平台自媒体发布教练。输出必须能直接复制执行，避免空话；严格围绕用户给出的主题，不要引入无关案例。' },
+        { role: 'system', content: '你是全平台自媒体发布教练。输出必须能直接复制执行，避免空话；严格围绕用户给出的主题，不要引入无关案例，不要擅自替换主题。' },
         {
           role: 'user',
           content: `
