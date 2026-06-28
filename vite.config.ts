@@ -159,6 +159,105 @@ function llmProxyPlugin(apiKey: string | undefined): Plugin {
         })
       })
 
+      server.middlewares.use('/api/llm/chat-stream', async (req, res, next) => {
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        if (req.method !== 'POST') {
+          res.statusCode = 405
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Method Not Allowed' }))
+          return
+        }
+
+        const key = getApiKey()
+        if (!key) {
+          res.statusCode = 500
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Missing DEEPSEEK_API_KEY' }))
+          return
+        }
+
+        const chunks: Buffer[] = []
+        req.on('data', (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)))
+        req.on('end', async () => {
+          try {
+            const upstream = await fetch('https://api.deepseek.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${key}`,
+                'Content-Type': 'application/json',
+                Accept: 'text/event-stream',
+              },
+              body: Buffer.concat(chunks),
+            })
+
+            if (!upstream.ok || !upstream.body) {
+              const contentType = upstream.headers.get('content-type') ?? 'application/json'
+              const text = await upstream.text()
+              if (!upstream.ok) {
+                let message = upstream.statusText
+                try {
+                  const j = JSON.parse(text) as any
+                  if (typeof j?.error === 'string') message = j.error
+                  else if (typeof j?.error?.message === 'string') message = j.error.message
+                  else if (typeof j?.message === 'string') message = j.message
+                } catch {}
+                if (upstream.status === 401) {
+                  message = 'Unauthorized：DeepSeek Key 无效/已过期/权限不足。请更新 Netlify 环境变量后重新部署。'
+                }
+                res.statusCode = upstream.status
+                res.setHeader('Content-Type', contentType)
+                res.end(JSON.stringify({ error: message, status: upstream.status }))
+                return
+              }
+            }
+
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
+            res.setHeader('Cache-Control', 'no-cache, no-transform')
+            res.setHeader('Connection', 'keep-alive')
+            ;(res as any).flushHeaders?.()
+
+            const reader = upstream.body!.getReader()
+            const decoder = new TextDecoder()
+            let buffer = ''
+
+            const sendEvent = (data: string) => {
+              res.write(`data: ${data}\n\n`)
+            }
+
+            while (true) {
+              const { value, done } = await reader.read()
+              if (done) break
+              buffer += decoder.decode(value, { stream: true })
+              let boundaryIndex = buffer.indexOf('\n\n')
+              while (boundaryIndex !== -1) {
+                const block = buffer.slice(0, boundaryIndex).trim()
+                buffer = buffer.slice(boundaryIndex + 2)
+                if (block) sendEvent(block)
+                boundaryIndex = buffer.indexOf('\n\n')
+              }
+            }
+
+            const trailing = buffer.trim()
+            if (trailing) sendEvent(trailing)
+            sendEvent('[DONE]')
+            res.end()
+          } catch (e) {
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }))
+          }
+        })
+        req.on('error', () => {
+          next()
+        })
+      })
+
       server.middlewares.use('/api/auth', (req, res) => {
         if (req.method === 'OPTIONS') {
           res.statusCode = 204

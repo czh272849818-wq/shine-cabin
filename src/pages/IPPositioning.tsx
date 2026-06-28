@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRight, BadgeCheck, Sparkles, Target } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletion } from '@/services/llm'
+import { chatCompletionStream } from '@/services/llm'
 
 const dimensions = [
   { label: '角色', value: '老板 / 专家 / 销售 / 运营' },
@@ -22,7 +22,7 @@ function IPPositioning() {
     setError('')
     setResult('')
     try {
-      const content = await chatCompletion(
+      await chatCompletionStream(
         [
           { role: 'system', content: '你是势能舱的IP定位专家。定位必须能被用户记住、能生产内容、能带来成交。' },
           {
@@ -41,9 +41,11 @@ function IPPositioning() {
 `.trim(),
           },
         ],
-        { temperature: 0.65 }
+        {
+          temperature: 0.65,
+          onDelta: setResult,
+        }
       )
-      setResult(content)
     } catch (e) {
       setError(e instanceof Error ? e.message : '生成失败')
     } finally {

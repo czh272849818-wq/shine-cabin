@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRight, BarChart3, MessageSquare, Send, Sparkles, Target, Users } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletion } from '@/services/llm'
+import { chatCompletionStream } from '@/services/llm'
 import { useWorkspace } from '@/hooks/useWorkspace'
 
 const modules = [
@@ -38,7 +38,7 @@ function Dashboard() {
     setError('')
     setPlan('')
     try {
-      const content = await chatCompletion(
+      await chatCompletionStream(
         [
           {
             role: 'system',
@@ -68,9 +68,11 @@ function Dashboard() {
 `.trim(),
           },
         ],
-        { temperature: 0.5 }
+        {
+          temperature: 0.5,
+          onDelta: setPlan,
+        }
       )
-      setPlan(content)
     } catch (e) {
       setError(e instanceof Error ? e.message : '生成失败')
     } finally {

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowRight, MessageSquare, Phone, Sparkles, Users } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletion } from '@/services/llm'
+import { chatCompletionStream } from '@/services/llm'
 import { useWorkspace } from '@/hooks/useWorkspace'
 import { emptyWorkspace, type Lead } from '@/services/workspace'
 
@@ -44,7 +44,7 @@ function CustomerCenter() {
     setError('')
     setAdvice('')
     try {
-      const content = await chatCompletion(
+      await chatCompletionStream(
         [
           { role: 'system', content: '你是势能舱成交转化顾问。输出必须是可复制话术和下一步动作。' },
           {
@@ -66,9 +66,11 @@ ${visibleLeads.map((lead) => `- ${lead.name} / ${lead.source} / ${lead.level}级
 `.trim(),
           },
         ],
-        { temperature: 0.55 }
+        {
+          temperature: 0.55,
+          onDelta: setAdvice,
+        }
       )
-      setAdvice(content)
     } catch (e) {
       setError(e instanceof Error ? e.message : '生成失败')
     } finally {

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { FileText, Image as ImageIcon, Play, Sparkles, Video } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletion } from '@/services/llm'
+import { chatCompletionStream } from '@/services/llm'
 
 type Mode = 'video' | 'graphic'
 type Goal = '涨粉' | '完播' | '转化'
@@ -31,7 +31,7 @@ function ContentFactory() {
     setError('')
     setResult('')
     try {
-      const content = await chatCompletion([
+      await chatCompletionStream([
         { role: 'system', content: '你是势能舱内容总监。输出必须能直接复制执行，避免空话。' },
         {
           role: 'user',
@@ -51,8 +51,9 @@ function ContentFactory() {
 7. 发布后看哪3个指标判断是否有效
 `.trim(),
         },
-      ])
-      setResult(content)
+      ], {
+        onDelta: setResult,
+      })
     } catch (e) {
       setError(e instanceof Error ? e.message : '生成失败')
     } finally {

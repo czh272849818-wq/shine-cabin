@@ -13,7 +13,7 @@ import {
   Orbit,
 } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletion, type LlmMessage } from '@/services/llm'
+import { chatCompletionStream, type LlmMessage } from '@/services/llm'
 import { clearSession, getSession } from '@/services/workspace'
 import { useWorkspace } from '@/hooks/useWorkspace'
 
@@ -166,8 +166,16 @@ function Layout() {
     setAssistantError('')
     setAssistantLoading(true)
     try {
-      const content = await chatCompletion([systemMessage, ...next])
-      setAssistantMessages([...next, { role: 'assistant', content }])
+      let assistantText = ''
+      await chatCompletionStream([systemMessage, ...next], {
+        onDelta: (text) => {
+          assistantText = text
+          setAssistantMessages([...next, { role: 'assistant', content: assistantText }])
+        },
+      })
+      if (!assistantText) {
+        setAssistantMessages([...next, { role: 'assistant', content: '' }])
+      }
     } catch (e) {
       setAssistantError(e instanceof Error ? e.message : '请求失败')
     } finally {

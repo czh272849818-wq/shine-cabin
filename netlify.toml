@@ -11,6 +11,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/llm/chat-stream"
+  to = "/.netlify/functions/llm-chat"
+  status = 200
+
+[[redirects]]
   from = "/api/llm/health"
   to = "/.netlify/functions/llm-health"
   status = 200

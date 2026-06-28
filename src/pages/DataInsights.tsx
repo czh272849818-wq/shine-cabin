@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowDown, ArrowRight, ArrowUp, BarChart3, Sparkles } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletion } from '@/services/llm'
+import { chatCompletionStream } from '@/services/llm'
 import { useWorkspace } from '@/hooks/useWorkspace'
 import { emptyWorkspace, type ContentSignal, type WorkspaceMetrics } from '@/services/workspace'
 
@@ -62,7 +62,7 @@ function DataInsights() {
     setError('')
     setAdvice('')
     try {
-      const content = await chatCompletion(
+      await chatCompletionStream(
         [
           { role: 'system', content: '你是势能舱数据增长顾问。用数据找约束，只输出可验证动作。' },
           {
@@ -91,9 +91,11 @@ ${topContent.map((item) => `- ${item.title} / ${item.signal} / 完播${item.comp
 `.trim(),
           },
         ],
-        { temperature: 0.45 }
+        {
+          temperature: 0.45,
+          onDelta: setAdvice,
+        }
       )
-      setAdvice(content)
     } catch (e) {
       setError(e instanceof Error ? e.message : '生成失败')
     } finally {

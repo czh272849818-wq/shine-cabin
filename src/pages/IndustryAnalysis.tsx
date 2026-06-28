@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRight, BarChart3, Search, Sparkles } from 'lucide-react'
 import clsx from 'clsx'
-import { chatCompletion } from '@/services/llm'
+import { chatCompletionStream } from '@/services/llm'
 
 const industries = ['建筑工程', '教育培训', '医疗健康', '金融服务', '餐饮美食', '房地产']
 
@@ -18,7 +18,7 @@ function IndustryAnalysis() {
     setError('')
     setReport('')
     try {
-      const content = await chatCompletion(
+      await chatCompletionStream(
         [
           {
             role: 'system',
@@ -40,9 +40,11 @@ function IndustryAnalysis() {
 `.trim(),
           },
         ],
-        { temperature: 0.55 }
+        {
+          temperature: 0.55,
+          onDelta: setReport,
+        }
       )
-      setReport(content)
     } catch (e) {
       setError(e instanceof Error ? e.message : '生成失败')
     } finally {
